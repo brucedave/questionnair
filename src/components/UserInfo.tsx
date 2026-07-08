@@ -1,10 +1,10 @@
 const UserInfo = () => {
     return (
-        <div className={styles.userInfo}>
-            <div className={styles.userInfo_avatar}>
-                <img src={avatar} alt="avatar" />
+        <div>
+            <div >
+              aa
             </div>
-            <div className={styles.userInfo_name}>
+            <div >
                 <span>user-name</span>
             </div>
         </div>
