@@ -1,4 +1,5 @@
 import type { FC } from "react";
+import { Button, Typography } from 'antd';
 const Home:FC = () => {
     return (
         <div>
