@@ -1,9 +1,26 @@
 import type { FC } from "react";
+import { useNavigate} from 'react-router-dom';
 import { Button, Typography } from 'antd';
+import { MANAGE_INDEX_PATHNAME } from '../router/constants';
+import styles from './Home.module.scss';
+
+const { Title, Paragraph } = Typography;
+
 const Home:FC = () => {
+    const navigate = useNavigate();
     return (
-        <div>
-            <h1>Home</h1>
+        <div className={styles.container}>
+        <div className={styles.info}>
+            <Title>问卷调查 | 在线投票</Title>
+            <Paragraph>
+                已累计创建问卷100份,发布问卷98份,收到问卷96份
+            </Paragraph>
+            <div>
+                <Button type="primary" onClick={() => navigate(MANAGE_INDEX_PATHNAME)}>
+                    开始使用
+                </Button>
+            </div>
+        </div>
         </div>
     );
 };
