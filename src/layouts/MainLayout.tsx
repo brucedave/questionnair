@@ -10,8 +10,8 @@ import useLoadUserData from "../hooks/useLoadUserData";
 const { Header, Content, Footer } = Layout;
 
 const MainLayout:FC = () => {
-    const {waitingUserInfo } = useLoadUserData();
-    useNavPage(waitingUserInfo);
+    const {waitingUserData } = useLoadUserData();
+    useNavPage(waitingUserData);
     return (
         <Layout>
             <Header className={styles.header}>
