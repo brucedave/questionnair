@@ -5,8 +5,10 @@ import { Link } from 'react-router-dom';
 import { REGISTER_PATHNAME,MANAGE_INDEX_PATHNAME } from '../router/constants';
 import { useNavigate } from 'react-router-dom';
 import { useRequest } from 'ahooks';
-import { loginService } from '../services/user';
+import { getUserInfoService, loginService } from '../services/user';
 import { setToken } from '../utils/user-token';
+import { useDispatch } from 'react-redux';
+import { loginReducer } from '../store/userReducer';
 import styles from './Login.module.scss';
 
 const { Title } = Typography;
@@ -34,6 +36,7 @@ function getUserInfoFormStorage() {
 const Login: FC = () => {
   const navigate = useNavigate();
   const [form] = Form.useForm();
+  const dispatch = useDispatch();
 
   useEffect(() => {
     const { username, password } = getUserInfoFormStorage();
@@ -49,17 +52,19 @@ const Login: FC = () => {
     },
     {
       manual: true,
-      onSuccess: (result) => {
+      onSuccess: async (result) => {
         message.success('登录成功');
-        const { token='' } = result;
+        const { token = '' } = result;
         setToken(token);
+        const { username, nickname } = await getUserInfoService();
+        dispatch(loginReducer({ username, nickname }));
         navigate(MANAGE_INDEX_PATHNAME);
-      }
+      },
     }
-  )
+  );
 
   const onFinish = (values: any) => {
-    const { username, password, remember } = values||{};
+    const { username, password, remember } = values || {};
     login(username, password);
     if (remember) {
       rememberUser(username, password);

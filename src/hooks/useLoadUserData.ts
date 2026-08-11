@@ -4,6 +4,7 @@ import { useDispatch } from 'react-redux';
 import useGetUserInfo from './useGetUserInfo';
 import { getUserInfoService } from '../services/user';
 import { loginReducer } from '../store/userReducer';
+import { getToken } from '../utils/user-token';
 function useLoadUserData() {
   const dispatch = useDispatch();
   const [waitingUserData, setWaitingUserData] = useState(true);
@@ -24,6 +25,10 @@ function useLoadUserData() {
   const { username } = useGetUserInfo(); //redux store中获取用户信息
   useEffect(() => {
     if (username) {
+      setWaitingUserData(false);
+      return;
+    }
+    if (!getToken()) {
       setWaitingUserData(false);
       return;
     }
