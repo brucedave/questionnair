@@ -1,5 +1,6 @@
 import type { FC } from 'react';
-import { Button, Divider, Tag, Space, Popconfirm } from 'antd';
+import { useState } from 'react';
+import { Button, Divider, Tag, Space, Popconfirm, message } from 'antd';
 import {
   BarChartOutlined,
   CopyOutlined,
@@ -10,6 +11,8 @@ import {
 } from '@ant-design/icons';
 import { Link, useNavigate } from 'react-router-dom';
 import styles from './QuestionCard.module.scss';
+import { useRequest } from 'ahooks';
+import { updateQuestionService, copyQuestionService } from '../services/question';
 
 type PropsType = {
   _id: string;
@@ -31,16 +34,61 @@ function formatDate(dateStr: string) {
 
 const QuestionCard: FC<PropsType> = (props: PropsType) => {
   const { _id, title, isPublished, isStar, answerCount, createdAt } = props;
+  const [isStarState, setIsStarState] = useState(isStar);
+  const [isDeletedState, setIsDeletedState] = useState(false);
 
+  //修改标星
+  const { run: updateStar } = useRequest(
+    async () => {
+      updateQuestionService(_id, { isStar: !isStarState });
+    },
+    {
+      manual: true,
+      onSuccess: () => {
+        setIsStarState(!isStarState);
+      },
+    }
+  );
+
+  //修改--删除问卷--假删除-放入回收站
+  const { loading: deleteLoading, run: deleteQuestion } = useRequest(
+    async () => {
+      updateQuestionService(_id, { isDeleted: true });
+    },
+    {
+      manual: true,
+      onSuccess: () => {
+        setIsDeletedState(true);
+      },
+    }
+  );
+
+  //复制问卷
+  const { loading: copyLoading, run: copyQuestion } = useRequest(
+    async () => {
+      const data = await copyQuestionService(_id);
+      return data;
+    },
+    {
+      manual: true,
+      onSuccess: res => {
+        navigate(`/question/edit/${res._id}`);
+      },
+    }
+  );
   const navigate = useNavigate();
+
+  if (isDeletedState) {
+    return null;
+  }
 
   return (
     <div className={styles.container}>
       <div className={styles.title}>
         <div className={styles.left}>
-          <Link to={isPublished ? `/question/edit/${_id}` : `/question/stat/${_id}`}>
+          <Link to={isPublished ? `/question/stat/${_id}` : `/question/edit/${_id}`}>
             <Space>
-              {isStar && <StarOutlined style={{ color: 'red' }} />}
+              {isStarState && <StarOutlined style={{ color: 'red' }} />}
               {title}
             </Space>
           </Link>
@@ -80,19 +128,19 @@ const QuestionCard: FC<PropsType> = (props: PropsType) => {
           <Space>
             <Button
               type="text"
-              icon={isStar ? <StarFilled /> : <StarOutlined />}
+              icon={isStarState ? <StarFilled /> : <StarOutlined />}
               size="small"
-              onClick={() => handleStar(_id)}
+              onClick={updateStar}
             >
-              {isStar ? '取消标星' : '标星'}
+              {isStarState ? '取消标星' : '标星'}
             </Button>
             <Popconfirm
               title="确定复制该问卷？"
               okText="确定"
               cancelText="取消"
-              onConfirm={() => handleCopy(_id)}
+              onConfirm={copyQuestion}
             >
-              <Button type="text" icon={<CopyOutlined />} size="small">
+              <Button type="text" icon={<CopyOutlined />} size="small" disabled={copyLoading}>
                 复制
               </Button>
             </Popconfirm>
@@ -100,9 +148,9 @@ const QuestionCard: FC<PropsType> = (props: PropsType) => {
               title="确定删除该问卷？"
               okText="确定"
               cancelText="取消"
-              onConfirm={() => handleDelete(_id)}
+              onConfirm={deleteQuestion}
             >
-              <Button type="text" icon={<DeleteOutlined />} size="small">
+              <Button type="text" icon={<DeleteOutlined />} size="small" disabled={deleteLoading}>
                 删除
               </Button>
             </Popconfirm>
