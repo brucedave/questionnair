@@ -37,3 +37,9 @@ export async function deleteQuestionsService(ids: string[]): Promise<ResDataType
   const res = await axios.delete(`/api/question`, { data: { ids } });
   return res as ResDataType;
 }
+
+//拿单个问卷数据 get /api/question/:id
+export async function getQuestionService(_id: string): Promise<ResDataType> {
+  const res = await axios.get(`/api/question/${_id}`);
+  return res as ResDataType;
+}
